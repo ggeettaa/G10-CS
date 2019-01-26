@@ -1,0 +1,13 @@
+<resources>
+    <string name="edad">Edad</string>
+    <string name="introducir">JUGAR</string>
+
+
+    <string name="app_name">Space Invaders</string>
+    <string name="title_activity_mayor">MayorActivity</string>
+    <string name="title_activity_menor">MenorActivity</string>
+
+    <string name="alien">alien</string>
+    <string name="nave">nave</string>
+
+</resources>
