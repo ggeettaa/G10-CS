@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.icu.text.SimpleDateFormat;
@@ -15,13 +14,12 @@ import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.spaceInvaders.android.R;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,12 +29,8 @@ import java.util.Date;
 import java.util.Iterator;
 
 public class PuntuacionActivity extends AppCompatActivity {
-
     public static final int TAKE_PHOTO_REQUEST = 13;
-
-    private TextView mensajeFin;
     private TextView puntuaciones;
-    private TextView punt500;
     private Button reinicio;
     private int puntos;
     private String nombre;
@@ -52,47 +46,42 @@ public class PuntuacionActivity extends AppCompatActivity {
     private ImageView myPhoto9;
     private ImageView myPhoto10;
     private ImageView myPhoto11;;
-
     MediaPlayer musica;
 
     @SuppressLint("SetTextI18n")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
+        TextView mensajeFin;
         setContentView(R.layout.activity_fin_del_juego);
         nombre = getIntent().getExtras().getString("nombre");
         puntos = Integer.parseInt(getIntent().getExtras().getString("puntos"));
-        puntuaciones = (TextView) findViewById(R.id.puntuaciones);
-        mensajeFin = (TextView) findViewById(R.id.puntuacion);
-        punt500 = (TextView)findViewById(R.id.textPunt500);
-        reinicio= (Button)findViewById(R.id.reinicio);
+        puntuaciones = findViewById(R.id.puntuaciones);
+        mensajeFin = findViewById(R.id.puntuacion);
+        reinicio= findViewById(R.id.reinicio);
         mensajeFin.setText(Integer.toString(puntos));
-        myPhoto = (ImageView) findViewById(R.id.myPhoto);
-        myPhoto2 = (ImageView) findViewById(R.id.myPhoto2);
-        myPhoto3 = (ImageView) findViewById(R.id.myPhoto3);
-        myPhoto4 = (ImageView) findViewById(R.id.myPhoto4);
-        myPhoto5 = (ImageView) findViewById(R.id.myPhoto5);
-        myPhoto6 = (ImageView) findViewById(R.id.myPhoto6);
-        myPhoto7 = (ImageView) findViewById(R.id.myPhoto7);
-        myPhoto8 = (ImageView) findViewById(R.id.myPhoto8);
-        myPhoto9 = (ImageView) findViewById(R.id.myPhoto9);
-        myPhoto10 = (ImageView) findViewById(R.id.myPhoto10);
-        myPhoto11 = (ImageView) findViewById(R.id.myPhoto11);
-
+        myPhoto = findViewById(R.id.myPhoto);
+        myPhoto2 = findViewById(R.id.myPhoto2);
+        myPhoto3 = findViewById(R.id.myPhoto3);
+        myPhoto4 = findViewById(R.id.myPhoto4);
+        myPhoto5 = findViewById(R.id.myPhoto5);
+        myPhoto6 = findViewById(R.id.myPhoto6);
+        myPhoto7 = findViewById(R.id.myPhoto7);
+        myPhoto8 = findViewById(R.id.myPhoto8);
+        myPhoto9 = findViewById(R.id.myPhoto9);
+        myPhoto10 = findViewById(R.id.myPhoto10);
+        myPhoto11 = findViewById(R.id.myPhoto11);
         takePhoto();
-
-
     }
 
-    private void takePhoto() {
+    private void takePhoto(){
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException e) {
-
+                Log.e("takephoto","Some error with the photo");
             }
             if (photoFile != null) {
                 Uri photoUri = FileProvider.getUriForFile(this,
@@ -113,13 +102,12 @@ public class PuntuacionActivity extends AppCompatActivity {
                 ".jpg",         /* suffix */
                 storageDir      /* directory */
         );
-
         myPhotoPath = image.getAbsolutePath();
         return image;
 
     }
 
-    public void reiniciar(View view){
+    public void reiniciar(){
         while (true) {
                 try {
                     if ((getIntent().getExtras().getString("tipoJuego")).equals("mayorRebotes")) {
@@ -145,11 +133,12 @@ public class PuntuacionActivity extends AppCompatActivity {
                         break;
                     }
                 } catch (Exception e) {
+                    Log.e("reiniciar","Some error with the restart");
                 }
         }
     }
 
-    public void salir(View view){
+    public void salir(){
         finish();
         System.exit(0);
     }
@@ -157,37 +146,28 @@ public class PuntuacionActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request it is that we're responding to
-        if (requestCode == TAKE_PHOTO_REQUEST) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
-                int targetW = myPhoto.getWidth();
-                int targetH = myPhoto.getHeight();
-
+        // Make sure the request was successful
+        if (requestCode == TAKE_PHOTO_REQUEST && resultCode == RESULT_OK) {
                 BitmapFactory.Options bmOptions = new BitmapFactory.Options();
                 bmOptions.inJustDecodeBounds = true;
                 BitmapFactory.decodeFile(myPhotoPath, bmOptions);
                 int photoW = bmOptions.outWidth;
                 int photoH = bmOptions.outHeight;
-
                 int scaleFactor = Math.min(photoH/110, photoW/110);
-
                 bmOptions.inJustDecodeBounds = false;
                 bmOptions.inSampleSize = scaleFactor;
-
                 Bitmap bitmap = BitmapFactory.decodeFile(myPhotoPath, bmOptions);
-
                 myPhoto.setImageBitmap(bitmap);
-
                 SharedPreferences preferencias = getSharedPreferences("Ranking", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferencias.edit();
                 //editor.clear(); //reinicia el ranking cada partida
                 if (puntos < 10) {
                     editor.putString("0000" + " - " + nombre  +"<" +myPhotoPath, "");
                 } else if (puntos < 100) {
-                    editor.putString("00" + String.valueOf(puntos) + " - " + nombre  +"<" +myPhotoPath, "");
+                    editor.putString(String.valueOf(puntos) + " - " + nombre  +"<" +myPhotoPath, "");
 
                 } else if (puntos < 1000){
-                    editor.putString("0" + String.valueOf(puntos) + " - " + nombre+  "<" +myPhotoPath, "");
+                    editor.putString(String.valueOf(puntos) + " - " + nombre+  "<" +myPhotoPath, "");
 
                 } else {
                     editor.putString(String.valueOf(puntos) + " - " + nombre+"<" +myPhotoPath, "");
@@ -197,7 +177,6 @@ public class PuntuacionActivity extends AppCompatActivity {
                 if (puntos<500){
                     reinicio.setVisibility(View.INVISIBLE);
                 }
-
                 Iterator it = preferencias.getAll().keySet().iterator();
                 ArrayList ord = new ArrayList();
                 while (it.hasNext()){
@@ -220,7 +199,7 @@ public class PuntuacionActivity extends AppCompatActivity {
                 int cont = 0;
                 for (Object i : ord) {
                     String nuevo = String.valueOf(i);
-                    String [] splitted = new String[2];
+                    String [] splitted;
                     splitted=nuevo.split("<");
                     if (splitted[0].equals(String.valueOf(puntos) + " - " + nombre)) {
                         s += ("-->  " + splitted[0] + "\n\n");
@@ -236,7 +215,6 @@ public class PuntuacionActivity extends AppCompatActivity {
                     bmOptions2.inJustDecodeBounds = false;
                     bmOptions2.inSampleSize = scaleFactor2;
                     Bitmap bitmap2 = BitmapFactory.decodeFile(splitted[1], bmOptions2);
-
                     if(cont==0) {
                         myPhoto2.setImageBitmap(bitmap2);
                     }else if(cont==1) {
@@ -264,13 +242,10 @@ public class PuntuacionActivity extends AppCompatActivity {
                     }
                 }
                 puntuaciones.setText(s);
-
                 musica = MediaPlayer.create(this, R.raw.supermariobros3);
                 musica.start();
                 musica.setLooping(true);
-
             }
         }
-    }
 
-}
+    }
