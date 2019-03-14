@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 public class PuntuacionActivity extends AppCompatActivity {
     public static final int TAKE_PHOTO_REQUEST = 13;
@@ -45,7 +46,7 @@ public class PuntuacionActivity extends AppCompatActivity {
     private ImageView myPhoto8;
     private ImageView myPhoto9;
     private ImageView myPhoto10;
-    private ImageView myPhoto11;;
+    private ImageView myPhoto11;
     MediaPlayer musica;
 
     @SuppressLint("SetTextI18n")
@@ -108,29 +109,15 @@ public class PuntuacionActivity extends AppCompatActivity {
     }
 
     public void reiniciar(){
-        while (true) {
+        boolean finished =false;
+        while (!finished) {
                 try {
                     if ((getIntent().getExtras().getString("tipoJuego")).equals("mayorRebotes")) {
-                        musica.stop();
-                        Intent mayorRebotes = new Intent(this, MayorActivityRebotes.class);
-                        mayorRebotes.putExtra("nombre", nombre);
-                        startActivity(mayorRebotes);
-                        finish();
-                        break;
+                        finished = activarReinicioMayorRebotes();
                     } else if ((getIntent().getExtras().getString("tipoJuego")).equals("mayor")) {
-                        musica.stop();
-                        Intent mayor = new Intent(this, MayorActivity.class);
-                        mayor.putExtra("nombre", nombre);
-                        startActivity(mayor);
-                        finish();
-                        break;
+                        finished = activarReinicioMayor();
                     } else {
-                        musica.stop();
-                        Intent menor = new Intent(this, MenorActivity.class);
-                        menor.putExtra("nombre", nombre);
-                        startActivity(menor);
-                        finish();
-                        break;
+                        finished = activarReinicioMenor();
                     }
                 } catch (Exception e) {
                     Log.e("reiniciar","Some error with the restart");
@@ -138,15 +125,101 @@ public class PuntuacionActivity extends AppCompatActivity {
         }
     }
 
+    public boolean activarReinicioMayorRebotes() {
+            musica.stop();
+            Intent mayorRebotes = new Intent(this, MayorActivityRebotes.class);
+            mayorRebotes.putExtra("nombre", nombre);
+            startActivity(mayorRebotes);
+            finish();
+            return true;
+    }
+
+    public boolean activarReinicioMayor() {
+        musica.stop();
+        Intent mayor = new Intent(this, MayorActivity.class);
+        mayor.putExtra("nombre", nombre);
+        startActivity(mayor);
+        finish();
+        return true;
+    }
+
+    public boolean activarReinicioMenor() {
+        musica.stop();
+        Intent menor = new Intent(this, MenorActivity.class);
+        menor.putExtra("nombre", nombre);
+        startActivity(menor);
+        finish();
+        return true;
+    }
+
     public void salir(){
         finish();
         System.exit(0);
     }
 
+    public void disablePlaying(){
+        if (puntos<500){
+            reinicio.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public SharedPreferences.Editor cadenaNombreRanking(SharedPreferences.Editor editor){
+        if (puntos < 10) {
+            editor.putString("0000" + " - " + nombre  +"<" +myPhotoPath, "");
+        } else if (puntos < 100) {
+            editor.putString(String.valueOf(puntos) + " - " + nombre  +"<" +myPhotoPath, "");
+
+        } else if (puntos < 1000){
+            editor.putString(String.valueOf(puntos) + " - " + nombre+  "<" +myPhotoPath, "");
+
+        } else {
+            editor.putString(String.valueOf(puntos) + " - " + nombre+"<" +myPhotoPath, "");
+        }
+        return editor;
+    }
+
+    public void addAndReturnPreferences(SharedPreferences preferencias,ArrayList ord){
+        Iterator it = preferencias.getAll().keySet().iterator();
+        while (it.hasNext()){
+            String res = (String)it.next();
+            ord.add(res);
+        }
+    }
+    public void setMusicAtEnd(){
+        musica = MediaPlayer.create(this, R.raw.supermariobros3);
+        musica.start();
+        musica.setLooping(true);
+    }
+
+    public void lol(List ord){
+        Collections.sort(ord, new Comparator<String>() {
+            public int compare(String o1, String o2) {
+                return extractInt(o2)- extractInt(o1);
+            }
+
+            int extractInt(String s) {
+                String [] splitted;
+                splitted=s.split("<");
+                String num = splitted[0].replaceAll("\\D", "");
+                return num.isEmpty() ? 0 : Integer.parseInt(num);
+            }
+        });
+    }
+
+    public Bitmap bitmapConfigurePhotoRanking(String [] splitted){
+        BitmapFactory.Options bmOptions2 = new BitmapFactory.Options();
+        bmOptions2.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(splitted[1], bmOptions2);
+        int photoW2 = bmOptions2.outWidth;
+        int photoH2 = bmOptions2.outHeight;
+        int scaleFactor2 = Math.min(photoH2/30, photoW2/30);
+        bmOptions2.inJustDecodeBounds = false;
+        bmOptions2.inSampleSize = scaleFactor2;
+        return BitmapFactory.decodeFile(splitted[1], bmOptions2);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request it is that we're responding to
-        // Make sure the request was successful
         if (requestCode == TAKE_PHOTO_REQUEST && resultCode == RESULT_OK) {
                 BitmapFactory.Options bmOptions = new BitmapFactory.Options();
                 bmOptions.inJustDecodeBounds = true;
@@ -160,41 +233,12 @@ public class PuntuacionActivity extends AppCompatActivity {
                 myPhoto.setImageBitmap(bitmap);
                 SharedPreferences preferencias = getSharedPreferences("Ranking", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferencias.edit();
-                //editor.clear(); //reinicia el ranking cada partida
-                if (puntos < 10) {
-                    editor.putString("0000" + " - " + nombre  +"<" +myPhotoPath, "");
-                } else if (puntos < 100) {
-                    editor.putString(String.valueOf(puntos) + " - " + nombre  +"<" +myPhotoPath, "");
 
-                } else if (puntos < 1000){
-                    editor.putString(String.valueOf(puntos) + " - " + nombre+  "<" +myPhotoPath, "");
-
-                } else {
-                    editor.putString(String.valueOf(puntos) + " - " + nombre+"<" +myPhotoPath, "");
-                }
-                editor.apply();
-
-                if (puntos<500){
-                    reinicio.setVisibility(View.INVISIBLE);
-                }
-                Iterator it = preferencias.getAll().keySet().iterator();
+                cadenaNombreRanking(editor).apply();
+                disablePlaying();
                 ArrayList ord = new ArrayList();
-                while (it.hasNext()){
-                    String res = (String)it.next();
-                    ord.add(res);
-                }
-                Collections.sort(ord, new Comparator<String>() {
-                    public int compare(String o1, String o2) {
-                        return extractInt(o2)- extractInt(o1);
-                    }
-
-                    int extractInt(String s) {
-                        String [] splitted = new String[2];
-                        splitted=s.split("<");
-                        String num = splitted[0].replaceAll("\\D", "");
-                        return num.isEmpty() ? 0 : Integer.parseInt(num);
-                    }
-                });
+                addAndReturnPreferences(preferencias,ord);
+                lol(ord);
                 String s = "";
                 int cont = 0;
                 for (Object i : ord) {
@@ -206,15 +250,7 @@ public class PuntuacionActivity extends AppCompatActivity {
                     } else {
                         s += ("      " + splitted[0] + "\n\n");
                     }
-                    BitmapFactory.Options bmOptions2 = new BitmapFactory.Options();
-                    bmOptions2.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(splitted[1], bmOptions2);
-                    int photoW2 = bmOptions2.outWidth;
-                    int photoH2 = bmOptions2.outHeight;
-                    int scaleFactor2 = Math.min(photoH2/30, photoW2/30);
-                    bmOptions2.inJustDecodeBounds = false;
-                    bmOptions2.inSampleSize = scaleFactor2;
-                    Bitmap bitmap2 = BitmapFactory.decodeFile(splitted[1], bmOptions2);
+                Bitmap bitmap2 = bitmapConfigurePhotoRanking(splitted);
                     if(cont==0) {
                         myPhoto2.setImageBitmap(bitmap2);
                     }else if(cont==1) {
@@ -242,9 +278,6 @@ public class PuntuacionActivity extends AppCompatActivity {
                     }
                 }
                 puntuaciones.setText(s);
-                musica = MediaPlayer.create(this, R.raw.supermariobros3);
-                musica.start();
-                musica.setLooping(true);
             }
         }
 
