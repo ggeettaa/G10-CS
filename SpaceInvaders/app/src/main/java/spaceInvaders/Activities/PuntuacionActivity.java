@@ -31,10 +31,12 @@ import java.util.List;
 
 public class PuntuacionActivity extends AppCompatActivity {
     public static final int TAKE_PHOTO_REQUEST = 13;
+    private static final String NOMBRE_STRING = "nombre";
     private TextView puntuaciones;
     private Button reinicio;
     private int puntos;
     private String nombre;
+    private String stringDisplayRanking;
     private String myPhotoPath;
     private ImageView myPhoto;
     private ImageView myPhoto2;
@@ -55,7 +57,7 @@ public class PuntuacionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         TextView mensajeFin;
         setContentView(R.layout.activity_fin_del_juego);
-        nombre = getIntent().getExtras().getString("nombre");
+        nombre = getIntent().getExtras().getString(NOMBRE_STRING);
         puntos = Integer.parseInt(getIntent().getExtras().getString("puntos"));
         puntuaciones = findViewById(R.id.puntuaciones);
         mensajeFin = findViewById(R.id.puntuacion);
@@ -128,7 +130,7 @@ public class PuntuacionActivity extends AppCompatActivity {
     public boolean activarReinicioMayorRebotes() {
             musica.stop();
             Intent mayorRebotes = new Intent(this, MayorActivityRebotes.class);
-            mayorRebotes.putExtra("nombre", nombre);
+            mayorRebotes.putExtra(NOMBRE_STRING, nombre);
             startActivity(mayorRebotes);
             finish();
             return true;
@@ -137,7 +139,7 @@ public class PuntuacionActivity extends AppCompatActivity {
     public boolean activarReinicioMayor() {
         musica.stop();
         Intent mayor = new Intent(this, MayorActivity.class);
-        mayor.putExtra("nombre", nombre);
+        mayor.putExtra(NOMBRE_STRING, nombre);
         startActivity(mayor);
         finish();
         return true;
@@ -146,7 +148,7 @@ public class PuntuacionActivity extends AppCompatActivity {
     public boolean activarReinicioMenor() {
         musica.stop();
         Intent menor = new Intent(this, MenorActivity.class);
-        menor.putExtra("nombre", nombre);
+        menor.putExtra(NOMBRE_STRING, nombre);
         startActivity(menor);
         finish();
         return true;
@@ -178,7 +180,7 @@ public class PuntuacionActivity extends AppCompatActivity {
         return editor;
     }
 
-    public void addAndReturnPreferences(SharedPreferences preferencias,ArrayList ord){
+    public void addAndReturnPreferences(SharedPreferences preferencias,List ord){
         Iterator it = preferencias.getAll().keySet().iterator();
         while (it.hasNext()){
             String res = (String)it.next();
@@ -218,39 +220,47 @@ public class PuntuacionActivity extends AppCompatActivity {
         return BitmapFactory.decodeFile(splitted[1], bmOptions2);
     }
 
+    public String [] stringBuildRanking(Object obj){
+        StringBuilder bld = new StringBuilder();
+        String nuevo = String.valueOf(obj);
+        String [] splitted;
+        splitted=nuevo.split("<");
+        if (splitted[0].equals(String.valueOf(puntos) + " - " + nombre)) {
+            bld.append("-->  " + splitted[0] + "\n\n");
+        } else {
+            bld.append("      " + splitted[0] + "\n\n");
+        }
+        stringDisplayRanking = bld.toString();
+        return splitted;
+    }
+
+    public void bitmapOptionsConfiguration(){
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(myPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+        int scaleFactor = Math.min(photoH/110, photoW/110);
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        Bitmap bitmap = BitmapFactory.decodeFile(myPhotoPath, bmOptions);
+        myPhoto.setImageBitmap(bitmap);
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == TAKE_PHOTO_REQUEST && resultCode == RESULT_OK) {
-                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-                bmOptions.inJustDecodeBounds = true;
-                BitmapFactory.decodeFile(myPhotoPath, bmOptions);
-                int photoW = bmOptions.outWidth;
-                int photoH = bmOptions.outHeight;
-                int scaleFactor = Math.min(photoH/110, photoW/110);
-                bmOptions.inJustDecodeBounds = false;
-                bmOptions.inSampleSize = scaleFactor;
-                Bitmap bitmap = BitmapFactory.decodeFile(myPhotoPath, bmOptions);
-                myPhoto.setImageBitmap(bitmap);
+                bitmapOptionsConfiguration();
                 SharedPreferences preferencias = getSharedPreferences("Ranking", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferencias.edit();
-
                 cadenaNombreRanking(editor).apply();
                 disablePlaying();
                 ArrayList ord = new ArrayList();
                 addAndReturnPreferences(preferencias,ord);
                 lol(ord);
-                String s = "";
+                stringDisplayRanking = "";
                 int cont = 0;
-                for (Object i : ord) {
-                    String nuevo = String.valueOf(i);
-                    String [] splitted;
-                    splitted=nuevo.split("<");
-                    if (splitted[0].equals(String.valueOf(puntos) + " - " + nombre)) {
-                        s += ("-->  " + splitted[0] + "\n\n");
-                    } else {
-                        s += ("      " + splitted[0] + "\n\n");
-                    }
-                Bitmap bitmap2 = bitmapConfigurePhotoRanking(splitted);
+                for (Object obj : ord) {
+                Bitmap bitmap2 = bitmapConfigurePhotoRanking(stringBuildRanking(obj));
                     if(cont==0) {
                         myPhoto2.setImageBitmap(bitmap2);
                     }else if(cont==1) {
@@ -277,7 +287,7 @@ public class PuntuacionActivity extends AppCompatActivity {
                         break;
                     }
                 }
-                puntuaciones.setText(s);
+                puntuaciones.setText(stringDisplayRanking);
             }
         }
 
