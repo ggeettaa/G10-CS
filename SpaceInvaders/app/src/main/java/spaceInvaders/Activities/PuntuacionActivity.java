@@ -1,6 +1,7 @@
 package spaceInvaders.Activities;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,7 +13,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public class PuntuacionActivity extends AppCompatActivity {
+public class PuntuacionActivity extends Activity {
     public static final int TAKE_PHOTO_REQUEST = 13;
     private static final String NOMBRE_STRING = "nombre";
     private TextView puntuaciones;
@@ -85,7 +85,7 @@ public class PuntuacionActivity extends AppCompatActivity {
                 photoFile = createImageFile();
             } catch (IOException e) {
                 Log.e("takephoto","Some error with the photo");
-            }
+        }
             if (photoFile != null) {
                 Uri photoUri = FileProvider.getUriForFile(this,
                         "com.spaceInvaders.android.fileProvider",
@@ -159,7 +159,7 @@ public class PuntuacionActivity extends AppCompatActivity {
         System.exit(0);
     }
 
-    public void disablePlaying(){
+    public void disableReplaying(){
         if (puntos<500){
             reinicio.setVisibility(View.INVISIBLE);
         }
@@ -180,7 +180,7 @@ public class PuntuacionActivity extends AppCompatActivity {
         return editor;
     }
 
-    public void addAndReturnPreferences(SharedPreferences preferencias,List ord){
+    public void addPreferencesToList(SharedPreferences preferencias,List ord){
         Iterator it = preferencias.getAll().keySet().iterator();
         while (it.hasNext()){
             String res = (String)it.next();
@@ -246,6 +246,52 @@ public class PuntuacionActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeFile(myPhotoPath, bmOptions);
         myPhoto.setImageBitmap(bitmap);
     }
+
+  public void settingImages(List ord){
+      int cont = 0;
+      for (Object obj : ord) {
+          Bitmap bitmap2 = bitmapConfigurePhotoRanking(stringBuildRanking(obj));
+          switch(cont) {
+              case 0:
+                  myPhoto2.setImageBitmap(bitmap2);
+                  break;
+              case 1:
+                  myPhoto3.setImageBitmap(bitmap2);
+                  break;
+              case 2:
+                  myPhoto4.setImageBitmap(bitmap2);
+                  break;
+              case 3:
+                  myPhoto5.setImageBitmap(bitmap2);
+                  break;
+              case 4:
+                  myPhoto6.setImageBitmap(bitmap2);
+                  break;
+              case 5:
+                  myPhoto7.setImageBitmap(bitmap2);
+                  break;
+              case 6:
+                  myPhoto8.setImageBitmap(bitmap2);
+                  break;
+              case 7:
+                  myPhoto9.setImageBitmap(bitmap2);
+                  break;
+              case 8:
+                  myPhoto10.setImageBitmap(bitmap2);
+                  break;
+              case 9:
+                  myPhoto11.setImageBitmap(bitmap2);
+                  break;
+              default:
+                  break;
+          }
+          cont++;
+          if (cont > 9) {
+              break;
+          }
+      }
+  }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == TAKE_PHOTO_REQUEST && resultCode == RESULT_OK) {
@@ -253,41 +299,14 @@ public class PuntuacionActivity extends AppCompatActivity {
                 SharedPreferences preferencias = getSharedPreferences("Ranking", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferencias.edit();
                 cadenaNombreRanking(editor).apply();
-                disablePlaying();
+                disableReplaying();
                 ArrayList ord = new ArrayList();
-                addAndReturnPreferences(preferencias,ord);
+                addPreferencesToList(preferencias,ord);
                 lol(ord);
                 stringDisplayRanking = "";
-                int cont = 0;
-                for (Object obj : ord) {
-                Bitmap bitmap2 = bitmapConfigurePhotoRanking(stringBuildRanking(obj));
-                    if(cont==0) {
-                        myPhoto2.setImageBitmap(bitmap2);
-                    }else if(cont==1) {
-                        myPhoto3.setImageBitmap(bitmap2);
-                    }else if(cont==2) {
-                        myPhoto4.setImageBitmap(bitmap2);
-                    }else if(cont==3) {
-                        myPhoto5.setImageBitmap(bitmap2);
-                    }else if(cont==4) {
-                        myPhoto6.setImageBitmap(bitmap2);
-                    }else if(cont==5) {
-                        myPhoto7.setImageBitmap(bitmap2);
-                    }else if(cont==6) {
-                        myPhoto8.setImageBitmap(bitmap2);
-                    }else if(cont==7) {
-                        myPhoto9.setImageBitmap(bitmap2);
-                    }else if(cont==8) {
-                        myPhoto10.setImageBitmap(bitmap2);
-                    }else if(cont==9) {
-                        myPhoto11.setImageBitmap(bitmap2);
-                    }
-                    cont++;
-                    if (cont > 9) {
-                        break;
-                    }
-                }
+                settingImages(ord);
                 puntuaciones.setText(stringDisplayRanking);
+                setMusicAtEnd();
             }
         }
 
