@@ -50,7 +50,7 @@ public class PuntuacionActivity extends Activity {
     private ImageView myPhoto10;
     private ImageView myPhoto11;
     MediaPlayer musica;
-
+    
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -250,6 +250,7 @@ public class PuntuacionActivity extends Activity {
   public void settingImages(List ord){
       int cont = 0;
       for (Object obj : ord) {
+          lol(ord);
           Bitmap bitmap2 = bitmapConfigurePhotoRanking(stringBuildRanking(obj));
           switch(cont) {
               case 0:
@@ -302,7 +303,6 @@ public class PuntuacionActivity extends Activity {
                 disableReplaying();
                 ArrayList ord = new ArrayList();
                 addPreferencesToList(preferencias,ord);
-                lol(ord);
                 stringDisplayRanking = "";
                 settingImages(ord);
                 puntuaciones.setText(stringDisplayRanking);
