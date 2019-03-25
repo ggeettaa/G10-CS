@@ -22,7 +22,6 @@ import android.widget.TextView;
 import com.spaceInvaders.android.R;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -181,7 +180,7 @@ public class PuntuacionActivity extends Activity {
         return editor;
     }
 
-    public ArrayList addPreferencesToList(SharedPreferences preferencias){
+    public List addPreferencesToList(SharedPreferences preferencias){
         Iterator it = preferencias.getAll().keySet().iterator();
         ArrayList ord = new ArrayList();
         while (it.hasNext()){
@@ -250,7 +249,7 @@ public class PuntuacionActivity extends Activity {
         myPhoto.setImageBitmap(bitmap);
     }
 
-  public void settingImages(ArrayList ord){
+  public void settingImages(List ord){
       int cont = 0;
       for (Object obj : ord) {
           Bitmap bitmap2 = bitmapConfigurePhotoRanking(stringBuildRanking(obj));
@@ -304,10 +303,9 @@ public class PuntuacionActivity extends Activity {
                 cadenaNombreRanking(editor);
                 editor.apply();
                 disableReplaying();
-                ArrayList ord = addPreferencesToList(preferencias);
+                List ord = addPreferencesToList(preferencias);
                 stringConfig(ord);
                 settingImages(ord);
-                //System.out.println(stringDisplayRanking);
                 puntuaciones.setText(stringDisplayRanking);
                 setMusicAtEnd();
             }
