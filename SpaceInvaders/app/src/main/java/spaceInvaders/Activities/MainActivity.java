@@ -17,8 +17,9 @@ public class MainActivity extends AppCompatActivity {
     private EditText edad;
     private EditText nombre;
     private TextView error;
-
     private MediaPlayer musica;
+    private Comprobaciones comp;
+    private int intentos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +41,14 @@ public class MainActivity extends AppCompatActivity {
             String anyos_s = edad.getText().toString();
             int anyos_int = Integer.parseInt(anyos_s);
             String name = nombre.getText().toString();
-            if(name.equals("")){
-                error.setText("Nombre no válido");
+            comp = new Comprobaciones(name,intentos);
+            if(!comp.esNombreCorrecto() || name.equals("")){
+                intentos = comp.nuevoIntentoNombre();
+                error.setText("Error. Intento " + intentos + " / 3 ");
+                if(comp.excedidoNumeroIntentos()){
+                    error.setText("Se cerrara el juego");
+                    finish();
+                }
             } else {
                 if (anyos_int <= 13) {
                     musica.stop();
