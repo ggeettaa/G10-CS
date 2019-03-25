@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import com.spaceInvaders.android.R;
 
+import spaceInvaders.Comprobaciones;
+
 public class MainActivity extends AppCompatActivity {
 
     private EditText edad;

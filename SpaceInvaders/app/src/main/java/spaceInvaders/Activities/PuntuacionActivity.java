@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.spaceInvaders.android.R;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -110,7 +111,7 @@ public class PuntuacionActivity extends Activity {
 
     }
 
-    public void reiniciar(){
+    public void reiniciar(View view){
         boolean finished =false;
         while (!finished) {
                 try {
@@ -180,12 +181,14 @@ public class PuntuacionActivity extends Activity {
         return editor;
     }
 
-    public void addPreferencesToList(SharedPreferences preferencias,List ord){
+    public ArrayList addPreferencesToList(SharedPreferences preferencias){
         Iterator it = preferencias.getAll().keySet().iterator();
+        ArrayList ord = new ArrayList();
         while (it.hasNext()){
             String res = (String)it.next();
             ord.add(res);
         }
+        return ord;
     }
     public void setMusicAtEnd(){
         musica = MediaPlayer.create(this, R.raw.supermariobros3);
@@ -247,10 +250,10 @@ public class PuntuacionActivity extends Activity {
         myPhoto.setImageBitmap(bitmap);
     }
 
-  public void settingImages(List ord){
+  public void settingImages(ArrayList ord){
       int cont = 0;
+      System.out.println("son" + ord.size());
       for (Object obj : ord) {
-          lol(ord);
           Bitmap bitmap2 = bitmapConfigurePhotoRanking(stringBuildRanking(obj));
           switch(cont) {
               case 0:
@@ -299,11 +302,12 @@ public class PuntuacionActivity extends Activity {
                 bitmapOptionsConfiguration();
                 SharedPreferences preferencias = getSharedPreferences("Ranking", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferencias.edit();
-                cadenaNombreRanking(editor).apply();
+                cadenaNombreRanking(editor);
+                editor.apply();
                 disableReplaying();
-                ArrayList ord = new ArrayList();
-                addPreferencesToList(preferencias,ord);
+                ArrayList ord = addPreferencesToList(preferencias);
                 stringDisplayRanking = "";
+                lol(ord);
                 settingImages(ord);
                 puntuaciones.setText(stringDisplayRanking);
                 setMusicAtEnd();
