@@ -37,7 +37,7 @@ public class PuntuacionActivity extends Activity {
     private Button reinicio;
     private int puntos;
     private String nombre;
-    private String stringDisplayRanking;
+    private String stringDisplayRanking = "";
     private String myPhotoPath;
     private ImageView myPhoto;
     private ImageView myPhoto2;
@@ -155,7 +155,7 @@ public class PuntuacionActivity extends Activity {
         return true;
     }
 
-    public void salir(){
+    public void salir(View view){
         finish();
         System.exit(0);
     }
@@ -224,7 +224,7 @@ public class PuntuacionActivity extends Activity {
     }
 
     public String [] stringBuildRanking(Object obj){
-        StringBuilder bld = new StringBuilder();
+        StringBuilder bld = new StringBuilder(stringDisplayRanking);
         String nuevo = String.valueOf(obj);
         String [] splitted;
         splitted=nuevo.split("<");
@@ -252,7 +252,6 @@ public class PuntuacionActivity extends Activity {
 
   public void settingImages(ArrayList ord){
       int cont = 0;
-      System.out.println("son" + ord.size());
       for (Object obj : ord) {
           Bitmap bitmap2 = bitmapConfigurePhotoRanking(stringBuildRanking(obj));
           switch(cont) {
@@ -306,9 +305,9 @@ public class PuntuacionActivity extends Activity {
                 editor.apply();
                 disableReplaying();
                 ArrayList ord = addPreferencesToList(preferencias);
-                stringDisplayRanking = "";
                 stringConfig(ord);
                 settingImages(ord);
+                //System.out.println(stringDisplayRanking);
                 puntuaciones.setText(stringDisplayRanking);
                 setMusicAtEnd();
             }
