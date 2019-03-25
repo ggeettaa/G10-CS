@@ -196,7 +196,7 @@ public class PuntuacionActivity extends Activity {
         musica.setLooping(true);
     }
 
-    public void lol(List ord){
+    public void stringConfig(List ord){
         Collections.sort(ord, new Comparator<String>() {
             public int compare(String o1, String o2) {
                 return extractInt(o2)- extractInt(o1);
@@ -307,7 +307,7 @@ public class PuntuacionActivity extends Activity {
                 disableReplaying();
                 ArrayList ord = addPreferencesToList(preferencias);
                 stringDisplayRanking = "";
-                lol(ord);
+                stringConfig(ord);
                 settingImages(ord);
                 puntuaciones.setText(stringDisplayRanking);
                 setMusicAtEnd();
